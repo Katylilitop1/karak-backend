@@ -13,6 +13,7 @@ const tileSchema = mongoose.Schema({
 //schémas d'un sous document player
 const playerSchema = mongoose.Schema({
 	players: [{ type: mongoose.Schema.Types.ObjectId, ref: 'heroes' }],
+	turn: Number,
 	life: Number,
 	weapons: [{ type: mongoose.Schema.Types.ObjectId, ref: 'meetings' }],
 	key: { type: mongoose.Schema.Types.ObjectId, ref: 'meetings' },
