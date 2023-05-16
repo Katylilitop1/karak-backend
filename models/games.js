@@ -4,7 +4,8 @@ const mongoose = require('mongoose');
 const tileSchema = mongoose.Schema({
 	tiles: [{ type: mongoose.Schema.Types.ObjectId, ref: 'tiles' }],
 	rotation: Number,
-	rencontre: { type: mongoose.Schema.Types.ObjectId, ref: 'meetings' },
+	isRotate: Boolean,
+	meetings: { type: mongoose.Schema.Types.ObjectId, ref: 'meetings' },
 	issue: Boolean,
 	loot: { type: mongoose.Schema.Types.ObjectId, ref: 'meetings' },
 	players: [{ type: mongoose.Schema.Types.ObjectId, ref: 'heroes' }],
