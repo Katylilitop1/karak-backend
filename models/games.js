@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 //schémas d'un sous document tile
 const tileSchema = mongoose.Schema({
-	tiles: [{ type: mongoose.Schema.Types.ObjectId, ref: 'tiles' }],
+	tile: { type: mongoose.Schema.Types.ObjectId, ref: 'tiles' },
 	rotation: Number,
 	isRotate: Boolean,
 	meetings: { type: mongoose.Schema.Types.ObjectId, ref: 'meetings' },
@@ -13,7 +13,7 @@ const tileSchema = mongoose.Schema({
 
 //schémas d'un sous document player
 const playerSchema = mongoose.Schema({
-	players: [{ type: mongoose.Schema.Types.ObjectId, ref: 'heroes' }],
+	player: { type: mongoose.Schema.Types.ObjectId, ref: 'heroes' },
 	turn: Number,
 	life: Number,
 	weapons: [{ type: mongoose.Schema.Types.ObjectId, ref: 'meetings' }],
@@ -25,8 +25,8 @@ const playerSchema = mongoose.Schema({
 
 //schémas d'un document game
 const gameSchema = mongoose.Schema({
-	tiles: tileSchema,
-	players: playerSchema,
+	tiles: [tileSchema],
+	players: [playerSchema],
 });
 
 const Game = mongoose.model('games', gameSchema);
