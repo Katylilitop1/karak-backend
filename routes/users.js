@@ -6,14 +6,14 @@ const Heroe = require('../models/heroes');
 const Meeting = require('../models/meetings')
 const Tile = require('../models/tiles')
 const Game = require('../models/games')
+const uid2 = require('uid2');
 
-/* GET /users + /newGame, got ident of a new game */
+
+/* GET / + /newGame, got ident of a new game */
 router.get('/newGame', async function (req, res) {
-  console.log('route get /users + /newGame');
-  // res.json({ result: true, data: { _id: "id_karak_one" } });
+  console.log('route get / + /newGame');
 
-
-  // build of the players
+  // build of the players and shuffle them
   let data_heroes = await Heroe.find()
   data_heroes.sort(() => Math.random() - 0.5)
   console.log('heroes random: ', data_heroes)
@@ -57,21 +57,38 @@ router.get('/newGame', async function (req, res) {
   }
 
   // build the game
+  const token = uid2(32);
   const newGame = Game({
+    token: token,
     tiles: tiles,
 	  players: players,
   })
   const data_game = await newGame.save()
-  res.json({ result: true, data: { _id: data_game._id, players: players, data_meetings, data_tiles, tiles, data_game } });
+  res.json({ result: true, game: { id: data_game._id, token: token } });
 });
 
-/* POST /users + /newGame, check the ident of game */
+/* POST / + /joinGame, check the ident of game */
 router.post('/joinGame', function (req, res) {
-  console.log('route post /users + /newGame with req.body: ', req.body);
-  if (!checkBody(req.body, ['id'])) {
+  console.log('route post / + /newGame with req.body: ', req.body);
+  if (!checkBody(req.body, ['id', 'token'])) {
     res.json({ result: false, error: 'Missing or empty fields' });
     return;
   }
+  Game.find({_id: req.body.id, token: req.body.token}).then(data => {
+    if (data) {
+      res.json({ result: true})
+    } else {
+      res.json({ result: false})
+    }
+	});
+
+ City.deleteOne({
+    cityName: { $regex: new RegExp(req.params.cityName, "i") },
+  }).then(deletedDoc => {
+    if (deletedDoc.deletedCount
+
+
+
   res.json({ result: true, data: { info: req.body.id + ' is known' } })
 });
 

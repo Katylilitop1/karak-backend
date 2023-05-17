@@ -14,7 +14,8 @@ const tileSchema = mongoose.Schema({
 //schémas d'un sous document player
 const playerSchema = mongoose.Schema({
 	player: { type: mongoose.Schema.Types.ObjectId, ref: 'heroes' },
-	turn: Number,
+	username: String,
+	turn: Boolean,
 	life: Number,
 	weapons: [{ type: mongoose.Schema.Types.ObjectId, ref: 'meetings' }],
 	key: { type: mongoose.Schema.Types.ObjectId, ref: 'meetings' },
@@ -25,6 +26,7 @@ const playerSchema = mongoose.Schema({
 
 //schémas d'un document game
 const gameSchema = mongoose.Schema({
+	token: String,
 	tiles: [tileSchema],
 	players: [playerSchema],
 });
