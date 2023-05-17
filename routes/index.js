@@ -148,15 +148,18 @@ router.post('/startGame', function (req, res) {
 });
 
 
-//
-/* POST / + /addPlayers, assign players to the game */
-/**** 
- * router.post('/addPlayers', function (req, res) {
-  console.log('route post / + /startGame with req.body: ', req.body);
+
+// POST / + /addPlayers, assign players to the game
+router.post('/addPlayers', function (req, res) {
+  console.log('route post / + /addPlayers with req.body: ', req.body);
   if (!checkBody(req.body, ['id', 'token', 'players'])) {
     res.json({ result: false, error: 'Missing or empty fields' });
     return;
   }
+  res.json({ result: true })
+})
+  /**** 
+
   Game.findOne({ _id: req.body.id, token: req.body.token })
     .populate(['tiles.tile', 'tiles.meetings', 'tiles.loot', 'players.player'])
     .then(data => {
