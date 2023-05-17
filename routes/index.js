@@ -156,22 +156,32 @@ router.post('/addPlayers', function (req, res) {
     res.json({ result: false, error: 'Missing or empty fields' });
     return;
   }
+  let my_array
+  try {
+    my_array = JSON.parse(req.body.players)
+  } catch (error) {
+    console.log('Exception: ', error);
+    res.json({ result: false })
+    return
+  }
+  my_array.map(async (username) => {
+    const data = await Game.updateOne(
+      { _id: req.body.id, token: req.body.token, "players.username": '' },
+      { $set: { "players.$.username": username } })
+      .catch((error) => {
+        console.log('Exception: ', error);
+        res.json({ result: false })
+        return
+      })
+    console.log('updateOne returns: ', data);
+    if (!data || data.modifiedCount === 0) {
+      res.json({ result: false });
+      return
+    }
+  })
+  console.log('Return result ok!');
   res.json({ result: true })
 })
-  /**** 
-
-  Game.findOne({ _id: req.body.id, token: req.body.token })
-    .populate(['tiles.tile', 'tiles.meetings', 'tiles.loot', 'players.player'])
-    .then(data => {
-      if (data) {
-        res.json({ result: true, game: data })
-      } else {
-        res.json({ result: false })
-      }
-    })
-    .catch(error => { console.log('Error: ', error); res.json({ result: false }) })
-});
-/*****/
 
 module.exports = router;
 
