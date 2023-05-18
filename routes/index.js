@@ -6,7 +6,6 @@ const Heroe = require('../models/heroes');
 const Meeting = require('../models/meetings')
 const Tile = require('../models/tiles')
 const Game = require('../models/games')
-const uid2 = require('uid2');
 
 /* GET / + /newGame, got ident of a new game */
 router.get('/newGame', async function (req, res) {
@@ -59,25 +58,23 @@ router.get('/newGame', async function (req, res) {
   tiles[0].isRotate = true;
 
   // build the game
-  const token = uid2(32);
   const newGame = Game({
-    token: token,
     tiles: tiles,
     players: players,
   })
   const data_game = await newGame.save()
-  res.json({ result: true, game: { id: data_game._id, token: token } })
+  res.json({ result: true, game: { id: data_game._id } })
 });
 
 /* POST / + /joinGame, check the ident of game */
 router.post('/joinGame', function (req, res) {
   console.log('route post / + /joinGame with req.body: ', req.body);
-  if (!checkBody(req.body, ['id', 'token'])) {
+  if (!checkBody(req.body, ['id'])) {
     res.json({ result: false, error: 'Missing or empty fields' });
     return;
   }
 
-  Game.findOne({ _id: req.body.id, token: req.body.token }).then(data => {
+  Game.findOne({ _id: req.body.id }).then(data => {
     if (data) {
       res.json({ result: true })
     } else {
@@ -131,11 +128,11 @@ router.post('/karak/:db', function (req, res) {
 /* POST / + /startGame, check the ident of game and return it */
 router.post('/startGame', function (req, res) {
   console.log('route post / + /startGame with req.body: ', req.body);
-  if (!checkBody(req.body, ['id', 'token'])) {
+  if (!checkBody(req.body, ['id'])) {
     res.json({ result: false, error: 'Missing or empty fields' });
     return;
   }
-  Game.findOne({ _id: req.body.id, token: req.body.token })
+  Game.findOne({ _id: req.body.id })
     .populate(['tiles.tile', 'tiles.meetings', 'tiles.loot', 'players.player'])
     .then(data => {
       if (data) {
@@ -152,7 +149,7 @@ router.post('/startGame', function (req, res) {
 // POST / + /addPlayers, assign players to the game
 router.post('/addPlayers', function (req, res) {
   console.log('route post / + /addPlayers with req.body: ', req.body);
-  if (!checkBody(req.body, ['id', 'token', 'players'])) {
+  if (!checkBody(req.body, ['id', 'players'])) {
     res.json({ result: false, error: 'Missing or empty fields' });
     return;
   }
@@ -166,7 +163,7 @@ router.post('/addPlayers', function (req, res) {
   }
   my_array.map(async (username) => {
     const data = await Game.updateOne(
-      { _id: req.body.id, token: req.body.token, "players.username": '' },
+      { _id: req.body.id, "players.username": '' },
       { $set: { "players.$.username": username } })
       .catch((error) => {
         console.log('Exception: ', error);
