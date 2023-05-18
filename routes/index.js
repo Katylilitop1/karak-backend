@@ -10,7 +10,6 @@ const Game = require('../models/games')
 /* GET / + /newGame, got ident of a new game */
 router.get('/newGame', async function (req, res) {
   console.log('route get / + /newGame');
-  // res.json({ result: true, data: { _id: "id_karak_one" } });
 
   // build of the players and shuffle them
   let data_heroes = await Heroe.find()
@@ -63,7 +62,7 @@ router.get('/newGame', async function (req, res) {
     players: players,
   })
   const data_game = await newGame.save()
-  res.json({ result: true, game: { id: data_game._id } })
+  res.json({ result: true, id: data_game._id  })
 });
 
 /* POST / + /joinGame, check the ident of game */
@@ -153,14 +152,14 @@ router.post('/addPlayers', function (req, res) {
     res.json({ result: false, error: 'Missing or empty fields' });
     return;
   }
-  let my_array
-  try {
-    my_array = JSON.parse(req.body.players)
-  } catch (error) {
-    console.log('Exception: ', error);
-    res.json({ result: false })
-    return
-  }
+  let my_array = req.body.players
+  // try {
+  //   my_array = JSON.parse(req.body.players)
+  // } catch (error) {
+  //   console.log('Exception: ', error);
+  //   res.json({ result: false })
+  //   return
+  // }
   my_array.map(async (username) => {
     const data = await Game.updateOne(
       { _id: req.body.id, "players.username": '' },
