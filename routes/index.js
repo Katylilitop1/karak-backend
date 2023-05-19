@@ -146,37 +146,30 @@ router.post('/startGame', function (req, res) {
 
 
 // POST / + /addPlayers, assign players to the game
-router.post('/addPlayers', function (req, res) {
+router.post('/addPlayers',  async function (req, res) {
   console.log('route post / + /addPlayers with req.body: ', req.body);
   if (!checkBody(req.body, ['id', 'players'])) {
     res.json({ result: false, error: 'Missing or empty fields' });
     return;
   }
-  let my_array = req.body.players
-  // try {
-  //   my_array = JSON.parse(req.body.players)
-  // } catch (error) {
-  //   console.log('Exception: ', error);
-  //   res.json({ result: false })
-  //   return
-  // }
-  my_array.map(async (username) => {
+  const zzz = await req.body.players.map( async (username) => {
     const data = await Game.updateOne(
       { _id: req.body.id, "players.username": '' },
       { $set: { "players.$.username": username } })
-      .catch((error) => {
-        console.log('Exception: ', error);
-        res.json({ result: false })
-        return
-      })
     console.log('updateOne returns: ', data);
-    if (!data || data.modifiedCount === 0) {
-      res.json({ result: false });
-      return
-    }
+    // if (!data || data.modifiedCount === 0) {
+    //   res.json({ result: false });
+    //   return
+    // }
   })
-  console.log('Return result ok!');
-  res.json({ result: true })
+  console.log('zzz: ', zzz);
+  Promise.all(zzz)
+    .then( (x) => {
+      console.log('Return result ok!');
+      console.log('zzz: ', zzz);
+      res.json({ result: true })
+    })
+    .catch(reason => res.json({result: false}))
 })
 
 module.exports = router;
