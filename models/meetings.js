@@ -4,7 +4,6 @@ const mongoose = require('mongoose');
 const meetingSchema = mongoose.Schema({
 	mob: String,
 	strength: Number,
-    issue: Boolean,
     loot: String,
     value: Number
 });

@@ -14,6 +14,7 @@ router.get('/newGame', async function (req, res) {
   // build of the players and shuffle them
   let data_heroes = await Heroe.find()
   data_heroes.sort(() => Math.random() - 0.5)
+  data_heroes.pop(); // remove the last one to keep only five heroes
   console.log('heroes random: ', data_heroes)
   const players = []
   for (const hero of data_heroes) {
@@ -46,9 +47,8 @@ router.get('/newGame', async function (req, res) {
       tile: tile._id,
       rotation: 0,
       isRotate: false,
-      meetings: (tile.specificity === "salle") ? data_meetings[idx_meetings]._id : null,
-      issue: data_meetings.issue,
-      loot: (tile.specificity === "salle") ? data_meetings[idx_meetings]._id : null,
+      meeting: (tile.specificity === "salle") ? data_meetings[idx_meetings]._id : null,
+      issue: false,
       players: [],
     })
     if (tile.specificity === "salle") idx_meetings++
@@ -62,7 +62,7 @@ router.get('/newGame', async function (req, res) {
     players: players,
   })
   const data_game = await newGame.save()
-  res.json({ result: true, id: data_game._id  })
+  res.json({ result: true, id: data_game._id })
 });
 
 /* POST / + /joinGame, check the ident of game */
@@ -132,7 +132,7 @@ router.post('/startGame', function (req, res) {
     return;
   }
   Game.findOne({ _id: req.body.id })
-    .populate(['tiles.tile', 'tiles.meetings', 'tiles.loot', 'players.player'])
+    .populate(['tiles.tile', 'tiles.meeting', 'players.player'])
     .then(data => {
       if (data) {
         res.json({ result: true, game: data })
@@ -146,13 +146,13 @@ router.post('/startGame', function (req, res) {
 
 
 // POST / + /addPlayers, assign players to the game
-router.post('/addPlayers',  async function (req, res) {
+router.post('/addPlayers', async function (req, res) {
   console.log('route post / + /addPlayers with req.body: ', req.body);
   if (!checkBody(req.body, ['id', 'players'])) {
     res.json({ result: false, error: 'Missing or empty fields' });
     return;
   }
-  const zzz = await req.body.players.map( async (username) => {
+  const zzz = await req.body.players.map(async (username) => {
     const data = await Game.updateOne(
       { _id: req.body.id, "players.username": '' },
       { $set: { "players.$.username": username } })
@@ -164,12 +164,23 @@ router.post('/addPlayers',  async function (req, res) {
   })
   console.log('zzz: ', zzz);
   Promise.all(zzz)
-    .then( (x) => {
+    .then((x) => {
       console.log('Return result ok!');
       console.log('zzz: ', zzz);
-      res.json({ result: true })
+      // we want to return couple of all the names and heroe
+      // Game.find({ _id: req.body.id }, { "players.player": 1 })
+      Game.findOne({ _id: req.body.id }, { "players.player": 1, "players.username": 1 })
+        .populate('players.player')
+        .then(data => {
+          console.log(data.players)
+          res.json({
+            result: true,
+            infos: data.players.filter(player => player.username !== '')
+              .map(player => { return { username: player.username, heroe: player.player.name } })
+          })
+        })
     })
-    .catch(reason => res.json({result: false}))
+    .catch(reason => res.json({ result: false }))
 })
 
 module.exports = router;
