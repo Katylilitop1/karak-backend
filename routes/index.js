@@ -60,6 +60,8 @@ router.get('/newGame', async function (req, res) {
   const newGame = Game({
     tiles: tiles,
     players: players,
+    gameStarted: false,
+    creationDate: Date.now(),
   })
   const data_game = await newGame.save()
   res.json({ result: true, id: data_game._id })
@@ -74,10 +76,11 @@ router.post('/joinGame', function (req, res) {
   }
 
   Game.findOne({ _id: req.body.id }).then(data => {
-    if (data) {
+    if (data && !data.gameStarted) {
+      console.log('gamestarted: ', data.gameStarted)
       res.json({ result: true })
     } else {
-      res.json({ result: false })
+      res.json({ result: false, gameStarted: data.gameStarted})
     }
   })
     .catch(error => { console.log('Error: ', error); res.json({ result: false }) })
@@ -133,9 +136,14 @@ router.post('/startGame', function (req, res) {
   }
   Game.findOne({ _id: req.body.id })
     .populate(['tiles.tile', 'tiles.meeting', 'players.player'])
-    .then(data => {
-      if (data) {
-        res.json({ result: true, game: data })
+    .then(data_game => {
+      if (data_game) {
+        const players_to_keep = data_game.players.filter((a_player) => a_player.username !== '')
+        Game.updateOne({ _id: req.body.id }, { gameStarted: true, players: players_to_keep })
+          .then(data_updateOne => {
+            console.log('data_updateOne on startGame: ', data_updateOne)
+            res.json({ result: true, game: data_game })
+        })  
       } else {
         res.json({ result: false })
       }
@@ -152,6 +160,25 @@ router.post('/addPlayers', async function (req, res) {
     res.json({ result: false, error: 'Missing or empty fields' });
     return;
   }
+  // count the number of free place and if game not started
+  const data_players = await Game.findOne({ _id: req.body.id }, { gameStarted: 1, "players.username": 1 })
+  // console.log(('data_players: ', data_players));
+  if (data_players.gameStarted) {
+     res.json({ result: false, gameStarted: data_players.gameStarted})
+     return 
+  }
+  const nb_free_place = data_players.players.reduce((accu, elt) => {
+    if (elt.username === '') return ++accu ; else return accu
+  }, 0)
+  console.log('Number of free places: :', nb_free_place);
+
+  // check if enough places
+  if (req.body.players.length > nb_free_place) {
+    console.log('Not enough place for players');
+    res.json({ result: false, error: 'Too much player for the game' });
+    return;
+  }
+
   const zzz = await req.body.players.map(async (username) => {
     const data = await Game.updateOne(
       { _id: req.body.id, "players.username": '' },
@@ -181,6 +208,47 @@ router.post('/addPlayers', async function (req, res) {
         })
     })
     .catch(reason => res.json({ result: false }))
+})
+
+
+router.post('/getPlayerHeroe', function (req, res) {
+  console.log('route post / + /getPlayerHeroe with req.body: ', req.body);
+  if (!checkBody(req.body, ['id'])) {
+    res.json({ result: false, error: 'Missing or empty fields' });
+    return;
+  }
+  Game.findOne({ _id: req.body.id }, { "players.player": 1, "players.username": 1 })
+    .populate('players.player')
+    .then(data => {
+      // console.log(data.players)
+      res.json({
+        result: true,
+        infos: data.players.filter(player => player.username !== '')
+          .map(player => { return { username: player.username, heroe: player.player.name } })
+      })
+    })
+    .catch(reason => res.json({ result: false }))
+})
+
+// POST / + /nbrFreePlayer, return the number of free places for player
+router.post('/nbrFreePlayer', async function (req, res) {
+  console.log('route post / + /nbrFreePlayer with req.body: ', req.body);
+  if (!checkBody(req.body, ['id'])) {
+    res.json({ result: false, error: 'Missing or empty fields' });
+    return;
+  }
+
+  // count the number of free place
+  const data_players = await Game.findOne({ _id: req.body.id }, { "players.username": 1 })
+  // console.log(('data_players: ', data_players));
+  const nb_free_place = data_players.players.reduce((accu, elt) => {
+    if (elt.username === '') return ++accu ; else return accu
+  }, 0)
+  console.log('Number of free places: :', nb_free_place);
+
+  res.json({ result: false, nb_free_place: nb_free_place });
+  return;
+
 })
 
 module.exports = router;

@@ -25,6 +25,8 @@ const playerSchema = mongoose.Schema({
 
 //schémas d'un document game
 const gameSchema = mongoose.Schema({
+	gameStarted: Boolean,
+	creationDate: Date,
 	tiles: [tileSchema],
 	players: [playerSchema],
 });
