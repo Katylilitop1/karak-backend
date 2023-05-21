@@ -173,24 +173,31 @@ router.post('/addPlayers', async function (req, res) {
     res.json({ result: false, error: 'Missing or empty fields' });
     return;
   }
-  // count the number of free place and if game not started
+  // >>>>>>>>>>>>>>>>>>>>>>> 1 check if the game is not started
   const data_players = await Game.findOne({ _id: req.body.id }, { gameStarted: 1, "players.username": 1 })
   // console.log(('data_players: ', data_players));
   if (data_players.gameStarted) {
     res.json({ result: false, gameStarted: data_players.gameStarted })
     return
   }
+  // >>>>>>>>>>>>>>>>>>>>>> 2 check if there is enough place for the players
   const nb_free_place = data_players.players.reduce((accu, elt) => {
     if (elt.username === '') return ++accu; else return accu
   }, 0)
   console.log('Number of free places: :', nb_free_place);
-
-  // check if enough places
   if (req.body.players.length > nb_free_place) {
     console.log('Not enough place for players');
     res.json({ result: false, error: 'Too much player for the game' });
     return;
   }
+  // >>>>>>>>>>>>>>>>>>>>> 3 check if names are not yet allowed
+  const player_name_not_available = data_players.players.filter((a_player) => req.body.players.includes(a_player.username))
+  if (player_name_not_available.length !== 0) {
+    console.log('Player names already taken: ', player_name_not_available);
+    res.json({ result: false, infos: 'Some names are already taken : ' + JSON.stringify(player_name_not_available) })
+    return
+  }
+
 
   const zzz = await req.body.players.map(async (username) => {
     const data = await Game.updateOne(
