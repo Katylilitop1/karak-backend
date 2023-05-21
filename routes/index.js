@@ -80,7 +80,7 @@ router.post('/joinGame', function (req, res) {
       console.log('gamestarted: ', data.gameStarted)
       res.json({ result: true })
     } else {
-      res.json({ result: false, gameStarted: data.gameStarted})
+      res.json({ result: false, gameStarted: data.gameStarted })
     }
   })
     .catch(error => { console.log('Error: ', error); res.json({ result: false }) })
@@ -143,7 +143,7 @@ router.post('/startGame', function (req, res) {
           .then(data_updateOne => {
             console.log('data_updateOne on startGame: ', data_updateOne)
             res.json({ result: true, game: data_game })
-        })  
+          })
       } else {
         res.json({ result: false })
       }
@@ -151,7 +151,20 @@ router.post('/startGame', function (req, res) {
     .catch(error => { console.log('Error: ', error); res.json({ result: false }) })
 });
 
-
+/* POST / + /getGame, check the ident of game and return it */
+router.post('/getGame', function (req, res) {
+  console.log('route post / + /getGame with req.body: ', req.body);
+  if (!checkBody(req.body, ['id'])) {
+    res.json({ result: false, error: 'Missing or empty fields' });
+    return;
+  }
+  Game.findOne({ _id: req.body.id })
+    .populate(['tiles.tile', 'tiles.meeting', 'players.player'])
+    .then(data_game => {
+      res.json({ result: true, game: data_game })
+    })
+    .catch(error => { console.log('Error: ', error); res.json({ result: false }) })
+});
 
 // POST / + /addPlayers, assign players to the game
 router.post('/addPlayers', async function (req, res) {
@@ -164,11 +177,11 @@ router.post('/addPlayers', async function (req, res) {
   const data_players = await Game.findOne({ _id: req.body.id }, { gameStarted: 1, "players.username": 1 })
   // console.log(('data_players: ', data_players));
   if (data_players.gameStarted) {
-     res.json({ result: false, gameStarted: data_players.gameStarted})
-     return 
+    res.json({ result: false, gameStarted: data_players.gameStarted })
+    return
   }
   const nb_free_place = data_players.players.reduce((accu, elt) => {
-    if (elt.username === '') return ++accu ; else return accu
+    if (elt.username === '') return ++accu; else return accu
   }, 0)
   console.log('Number of free places: :', nb_free_place);
 
@@ -217,12 +230,13 @@ router.post('/getPlayerHeroe', function (req, res) {
     res.json({ result: false, error: 'Missing or empty fields' });
     return;
   }
-  Game.findOne({ _id: req.body.id }, { "players.player": 1, "players.username": 1 })
+  Game.findOne({ _id: req.body.id }, { gameStarted: 1, "players.player": 1, "players.username": 1 })
     .populate('players.player')
     .then(data => {
       // console.log(data.players)
       res.json({
         result: true,
+        gameStarted: data.gameStarted,
         infos: data.players.filter(player => player.username !== '')
           .map(player => { return { username: player.username, heroe: player.player.name } })
       })
@@ -242,7 +256,7 @@ router.post('/nbrFreePlayer', async function (req, res) {
   const data_players = await Game.findOne({ _id: req.body.id }, { "players.username": 1 })
   // console.log(('data_players: ', data_players));
   const nb_free_place = data_players.players.reduce((accu, elt) => {
-    if (elt.username === '') return ++accu ; else return accu
+    if (elt.username === '') return ++accu; else return accu
   }, 0)
   console.log('Number of free places: :', nb_free_place);
 
