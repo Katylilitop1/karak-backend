@@ -142,7 +142,8 @@ router.post('/startGame', function (req, res) {
         Game.updateOne({ _id: req.body.id }, { gameStarted: true, players: players_to_keep })
           .then(data_updateOne => {
             console.log('data_updateOne on startGame: ', data_updateOne)
-            res.json({ result: true, game: data_game })
+            res.redirect(307, '../getGame')
+            // res.json({ result: true, game: data_game })
           })
       } else {
         res.json({ result: false })
