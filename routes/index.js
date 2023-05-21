@@ -194,7 +194,7 @@ router.post('/addPlayers', async function (req, res) {
   const player_name_not_available = data_players.players.filter((a_player) => req.body.players.includes(a_player.username))
   if (player_name_not_available.length !== 0) {
     console.log('Player names already taken: ', player_name_not_available);
-    res.json({ result: false, infos: 'Some names are already taken : ' + JSON.stringify(player_name_not_available) })
+    res.json({ result: false, error: 'Some names are already taken : ' + JSON.stringify(player_name_not_available) })
     return
   }
 
