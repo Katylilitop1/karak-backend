@@ -21,6 +21,8 @@ const playerSchema = mongoose.Schema({
 	magic: [{ type: mongoose.Schema.Types.ObjectId, ref: 'meetings' }],
 	treasure: Number,
 	malediction: Boolean,
+	coords: String,
+	prevCoords: String,
 });
 
 //schémas d'un document game

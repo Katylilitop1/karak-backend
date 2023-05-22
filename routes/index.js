@@ -28,6 +28,8 @@ router.get('/newGame', async function (req, res) {
       magic: [],
       treasure: 0,
       malediction: false,
+      coords: '21;21', 
+	    prevCoords: '21;21',
     })
   }
 
