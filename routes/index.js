@@ -47,11 +47,11 @@ router.get('/newGame', async function (req, res) {
       tile: tile._id,
       rotation: 0,
       isRotate: false,
-      meeting: (tile.specificity === "salle") ? data_meetings[idx_meetings]._id : null,
+      meeting: (tile.specificity === "room") ? data_meetings[idx_meetings]._id : null,
       issue: false,
       players: [],
     })
-    if (tile.specificity === "salle") idx_meetings++
+    if (tile.specificity === "room") idx_meetings++
   }
   // start tile is already rotate
   tiles[0].isRotate = true;
