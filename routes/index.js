@@ -41,7 +41,7 @@ router.get('/newGame', async function (req, res) {
   // build of the tiles
   let data_tiles = await Tile.find()
   const start_tile = data_tiles.shift()
-  //data_tiles.sort(() => Math.random() - 0.5)
+  data_tiles.sort(() => Math.random() - 0.5)
   data_tiles.unshift(start_tile)
   const tiles = []
   for (const tile of data_tiles) {
