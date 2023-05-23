@@ -141,6 +141,7 @@ router.post('/startGame', function (req, res) {
     .then(data_game => {
       if (data_game) {
         const players_to_keep = data_game.players.filter((a_player) => a_player.username !== '')
+        players_to_keep[0].turn = true;
         Game.updateOne({ _id: req.body.id }, { gameStarted: true, players: players_to_keep })
           .then(data_updateOne => {
             console.log('data_updateOne on startGame: ', data_updateOne)
