@@ -28,8 +28,8 @@ router.get('/newGame', async function (req, res) {
       magic: [],
       treasure: 0,
       malediction: false,
-      coords: '21;21', 
-	    prevCoords: '21;21',
+      coords: '20;20', 
+	    prevCoords: '20;20',
     })
   }
 
@@ -49,6 +49,7 @@ router.get('/newGame', async function (req, res) {
       tile: tile._id,
       rotation: 0,
       isRotate: false,
+      isPlayed: null,
       meeting: (tile.specificity === "room") ? data_meetings[idx_meetings]._id : null,
       issue: false,
       players: [],
@@ -57,6 +58,8 @@ router.get('/newGame', async function (req, res) {
   }
   // start tile is already rotate
   tiles[0].isRotate = true;
+  tiles[0].isPlayed = '20;20';
+
 
   // build the game
   const newGame = Game({

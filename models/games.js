@@ -5,6 +5,7 @@ const tileSchema = mongoose.Schema({
 	tile: { type: mongoose.Schema.Types.ObjectId, ref: 'tiles' },
 	rotation: Number,
 	isRotate: Boolean,
+	isPlayed: String,
 	meeting: { type: mongoose.Schema.Types.ObjectId, ref: 'meetings' },
 	issue: Boolean,
 	players: [{ type: mongoose.Schema.Types.ObjectId, ref: 'heroes' }],
