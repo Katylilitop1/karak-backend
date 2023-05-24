@@ -1,0 +1,6 @@
+PUSHER_APPID="1606490"
+PUSHER_KEY="2945f99e59578cb5c02a"
+PUSHER_SECRET="8fb131303c7d1268092c"
+PUSHER_CLUSTER="eu"
+
+CONNECTION_STRING=mongodb+srv://admin:DyWQ7oqGohlVEON5@cluster0.d5vhszw.mongodb.net/karak
