@@ -30,12 +30,13 @@ router.get('/newGame', async function (req, res) {
   for (const hero of data_heroes) {
     players.push({
       player: hero._id,
+      type: hero.name,
       username: '',
       turn: false,
       life: 5,
-      weapons: [],
+      weapons: [null, null],
       key: null,
-      magic: [],
+      scroll: [null, null, null],
       treasure: 0,
       malediction: false,
       coords: '20;20',
