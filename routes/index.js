@@ -38,8 +38,8 @@ router.get('/newGame', async function (req, res) {
       magic: [],
       treasure: 0,
       malediction: false,
-      coords: '20;20', 
-	    prevCoords: '20;20',
+      coords: '20;20',
+      prevCoords: '20;20',
     })
   }
 
@@ -290,35 +290,34 @@ router.post('/nbrFreePlayer', async function (req, res) {
 })
 
 
-
 //Roads for Pusher
-// Join chat
+// Join pusher
 router.put('/users/:username', (req, res) => {
-  console.log('entry put/users/:username' )
-  pusher.trigger('chat', 'join', {
+  console.log('entry put/users/:username')
+  pusher.trigger('karak-development', 'join', {
     username: req.params.username,
   });
-
+  // xxx ??? to be replaced/added  by res.sendStatus(204) 
   res.json({ result: true });
 });
 
 // Leave chat
 router.delete("/users/:username", (req, res) => {
-  console.log('entry delete/users/:username' )
-  pusher.trigger('chat', 'leave', {
+  console.log('entry delete/users/:username')
+  pusher.trigger('karak-development', 'leave', {
     username: req.params.username,
   });
-
+  // xxx ??? to be replaced/added  by res.sendStatus(204) 
   res.json({ result: true });
 });
 
-// Send message
-router.post('/message', (req, res) => {
-  console.log('entry post/users/:username' )
-  const message = req.body;
-
-  pusher.trigger('chat', 'message', message);
-
+// receive message and broadcast
+router.post('/users/:name/messages', (req, res) => {
+  console.log('User ' + req.params.name
+    + ' sent message: ' + req.body.text);
+  // const message = req.body;
+  pusher.trigger('karak-development', 'message', req.body.text);
+  // xxx ??? to be replaced/added  by res.sendStatus(204) 
   res.json({ result: true });
 });
 
