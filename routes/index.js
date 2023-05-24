@@ -17,6 +17,31 @@ const pusher = new Pusher({
   useTLS: true,
 });
 
+////////////
+/* POST / + /saveGame, update the game received in req.body.game
+  and broadcast reloadGame using pushing */
+router.post('/saveGame', function (req, res) {
+  console.log('route post / + /saveGame with req.body: ', req.body);
+  if (!checkBody(req.body, ['game'])) {
+    res.json({ result: false, error: 'Missing or empty fields' });
+    return;
+  }
+
+  Game.updateOne({ _id: req.body.game._id }, req.body.game)
+    .then(data_updateOne => {
+      console.log('data_updateOne on startGame: ', data_updateOne)
+      if (data_updateOne.modifiedCount === 1) {
+        pusher.trigger('karak-development', 'message', 'reloadGame');
+        res.json({ result: true })
+      }
+      else {
+        res.json({ result: false })
+      }
+    })
+
+})
+//////////
+
 /* GET / + /newGame, got ident of a new game */
 router.get('/newGame', async function (req, res) {
   console.log('route get / + /newGame');
@@ -70,7 +95,6 @@ router.get('/newGame', async function (req, res) {
   // start tile is already rotate
   tiles[0].isRotate = true;
   tiles[0].isPlayed = '20;20';
-
 
   // build the game
   const newGame = Game({
@@ -298,8 +322,7 @@ router.put('/users/:username', (req, res) => {
   pusher.trigger('karak-development', 'join', {
     username: req.params.username,
   });
-  // xxx ??? to be replaced/added  by res.sendStatus(204) 
-  res.json({ result: true });
+  res.sendStatus(204)
 });
 
 // Leave chat
@@ -308,8 +331,7 @@ router.delete("/users/:username", (req, res) => {
   pusher.trigger('karak-development', 'leave', {
     username: req.params.username,
   });
-  // xxx ??? to be replaced/added  by res.sendStatus(204) 
-  res.json({ result: true });
+  res.sendStatus(204)
 });
 
 // receive message and broadcast
@@ -318,8 +340,7 @@ router.post('/users/:name/messages', (req, res) => {
     + ' sent message: ' + req.body.text);
   // const message = req.body;
   pusher.trigger('karak-development', 'message', req.body.text);
-  // xxx ??? to be replaced/added  by res.sendStatus(204) 
-  res.json({ result: true });
+  res.sendStatus(204)
 });
 
 module.exports = router;
