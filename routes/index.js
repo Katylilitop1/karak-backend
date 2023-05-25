@@ -84,7 +84,7 @@ router.get('/newGame', async function (req, res) {
     tiles.push({
       tile: tile._id,
       rotation: 0,
-      isRotate: false,
+      data: tile.data,
       isPlayed: null,
       meeting: (tile.specificity === "room") ? data_meetings[idx_meetings]._id : null,
       issue: false,

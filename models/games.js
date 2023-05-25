@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const tileSchema = mongoose.Schema({
 	tile: { type: mongoose.Schema.Types.ObjectId, ref: 'tiles' },
 	rotation: Number,
-	isRotate: Boolean,
+	data: [Number],
 	isPlayed: String,
 	meeting: { type: mongoose.Schema.Types.ObjectId, ref: 'meetings' },
 	issue: Boolean,
