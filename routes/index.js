@@ -31,7 +31,10 @@ router.post('/saveGame', function (req, res) {
     .then(data_updateOne => {
       console.log('data_updateOne on startGame: ', data_updateOne)
       if (data_updateOne.modifiedCount === 1) {
-        pusher.trigger('karak-development', 'message', 'reloadGame');
+        console.log('Pusher: dispatch "reloadGame" on: ', req.body.game._id, typeof req.body.game._id );
+        pusher.trigger('karak-development', req.body.game._id,
+          'reloadGame')
+          // { action: 'reloadGame', game: JSON.stringify(req.body.game) });
         res.json({ result: true })
       }
       else {
